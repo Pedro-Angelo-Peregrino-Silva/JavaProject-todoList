@@ -1,5 +1,6 @@
 package br.com.pedroangelo.todolist.users;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,9 +27,22 @@ public class userController {
      * Void (Apenas lógica - sem retorno)
      */
 
-     @PostMapping("/")
-    public void create(@RequestBody userModal userModal) {
-        System.out.println(userModal.name);
+    @Autowired
+    private IUserRepository userRepository;
+
+    @PostMapping("/")
+    public userModal create(@RequestBody userModal userModal) {
+
+        var user = this.userRepository.findByUsername(userModal.getUsername());
+
+        if(user != null) {
+            System.out.println("Usuário existente.");
+            return null;
+        }
+
+        var userCreated = this.userRepository.save(userModal);
+        return userCreated;
+
     }
     
 }
