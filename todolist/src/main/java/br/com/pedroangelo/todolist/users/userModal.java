@@ -13,7 +13,7 @@ import lombok.Data;
 
 @Data
 @Entity(name = "tb_users")
-public class userModal {
+public class UserModal {
     
     @Id
     @GeneratedValue(generator = "UUID")

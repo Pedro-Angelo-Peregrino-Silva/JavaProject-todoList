@@ -1,10 +1,14 @@
 package br.com.pedroangelo.todolist.users;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import at.favre.lib.crypto.bcrypt.BCrypt;
 
 /**
  * Modificador
@@ -15,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/users")
-public class userController {
+public class UserController {
 
     /**
      * String (texto)
@@ -31,17 +35,23 @@ public class userController {
     private IUserRepository userRepository;
 
     @PostMapping("/")
-    public userModal create(@RequestBody userModal userModal) {
+    public ResponseEntity create(@RequestBody UserModal userModal) {
 
         var user = this.userRepository.findByUsername(userModal.getUsername());
 
         if(user != null) {
-            System.out.println("Usuário existente.");
-            return null;
+            //Mensagem de erro
+            //Status code
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário já existe");
         }
 
+       var passwordHashred = BCrypt.withDefaults()
+       .hashToString(12, userModal.getPassword().toCharArray());
+
+       userModal.setPassword(passwordHashred);
+
         var userCreated = this.userRepository.save(userModal);
-        return userCreated;
+        return ResponseEntity.status(HttpStatus.CREATED).body(userCreated);
 
     }
     
